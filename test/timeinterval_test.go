@@ -12,7 +12,7 @@ import (
 const (
 	year  = 2024
 	month = 2
-	day   = 5
+	day   = 11
 )
 
 func TestTimePointNew(t *testing.T) {
@@ -373,4 +373,37 @@ func TestTimeIntervalSetNewAddCleanup(t *testing.T) {
 
 	assert.Equal(t, len(tis.Elements()), 1)
 	assert.Equal(t, tis.Elements()[0].Equal(ti15), true)
+}
+
+func TestTimeIntervalSetSort(t *testing.T) {
+	t1 := timeinterval.NewTimePoint(year, month, day, 19, 0, 0, 0)
+	t2 := timeinterval.NewTimePoint(year, month, day, 19, 1, 0, 0)
+	t3 := timeinterval.NewTimePoint(year, month, day, 19, 2, 0, 0)
+	t4 := timeinterval.NewTimePoint(year, month, day, 19, 3, 0, 0)
+	t5 := timeinterval.NewTimePoint(year, month, day, 19, 4, 0, 0)
+
+	ti11 := timeinterval.NewTimeInterval(t1, t1)
+	ti12 := timeinterval.NewTimeInterval(t1, t2)
+	ti13 := timeinterval.NewTimeInterval(t1, t3)
+	ti14 := timeinterval.NewTimeInterval(t1, t4)
+	ti15 := timeinterval.NewTimeInterval(t1, t5)
+	ti23 := timeinterval.NewTimeInterval(t2, t3)
+	ti34 := timeinterval.NewTimeInterval(t3, t4)
+	ti45 := timeinterval.NewTimeInterval(t4, t5)
+
+	tis := timeinterval.NewTimeIntervalSet()
+
+	tis.Add(ti45, ti15, ti34, ti23, ti13, ti12, ti11, ti12, ti14)
+	tis.Sort()
+
+	assert.Equal(t, len(tis.Elements()), 9)
+	assert.Equal(t, tis.Elements()[0].Equal(ti11), true)
+	assert.Equal(t, tis.Elements()[1].Equal(ti12), true)
+	assert.Equal(t, tis.Elements()[2].Equal(ti12), true)
+	assert.Equal(t, tis.Elements()[3].Equal(ti13), true)
+	assert.Equal(t, tis.Elements()[4].Equal(ti14), true)
+	assert.Equal(t, tis.Elements()[5].Equal(ti15), true)
+	assert.Equal(t, tis.Elements()[6].Equal(ti23), true)
+	assert.Equal(t, tis.Elements()[7].Equal(ti34), true)
+	assert.Equal(t, tis.Elements()[8].Equal(ti45), true)
 }
