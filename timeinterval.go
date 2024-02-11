@@ -124,27 +124,31 @@ func (tp *TimePoint) Diff(tp2 *TimePoint) time.Duration {
 	case After:
 		return tp.sub(tp2)
 	default:
-		panic(fmt.Sprint("invalid return value from TimePoint.Compare()", v))
+		panic(fmt.Sprint("invalid return value from TimePoint.Compare():", v))
 	}
 }
 
 func TimePointMax(tp ...*TimePoint) *TimePoint {
 	ret := tp[0]
+
 	for i := 1; i < len(tp); i++ {
 		if tp[i].After(ret) {
 			ret = tp[i]
 		}
 	}
+
 	return ret
 }
 
 func TimePointMin(tp ...*TimePoint) *TimePoint {
 	ret := tp[0]
+
 	for i := 1; i < len(tp); i++ {
 		if tp[i].Before(ret) {
 			ret = tp[i]
 		}
 	}
+
 	return ret
 }
 
@@ -153,7 +157,7 @@ type TimeInterval struct {
 	start *TimePoint
 	end   *TimePoint
 
-	duration *time.Duration
+	duration time.Duration
 }
 
 func (ti *TimeInterval) Start() *TimePoint {
@@ -165,7 +169,7 @@ func (ti *TimeInterval) End() *TimePoint {
 }
 
 func (ti *TimeInterval) Duration() time.Duration {
-	return *ti.duration
+	return ti.duration
 }
 
 func (ti *TimeInterval) IsZeroDuration() bool {
@@ -178,16 +182,14 @@ func NewTimeInterval(start, end *TimePoint) *TimeInterval {
 	}
 
 	if end.Before(start) {
-		panic(fmt.Sprintf("end is after start: start: %v, end: %v", start, end))
+		panic(fmt.Sprintf("end is before start: start: %v, end: %v", start, end))
 	}
-
-	duration := start.Diff(end)
 
 	ret := &TimeInterval{
 		start: start,
 		end:   end,
 
-		duration: &duration,
+		duration: start.Diff(end),
 	}
 
 	return ret
@@ -222,7 +224,7 @@ func (ti *TimeInterval) Intersects(ti2 *TimeInterval) bool {
 
 func (ti *TimeInterval) Merge(ti2 *TimeInterval) *TimeInterval {
 	if !ti.Mergeable(ti2) {
-		panic(fmt.Sprintf("is not mergeable: %v, %v", ti, ti2))
+		panic(fmt.Sprintf("not mergeable: %v, %v", ti, ti2))
 	}
 
 	ret := NewTimeInterval(
